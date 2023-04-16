@@ -85,7 +85,6 @@ void AIU_JumpkingCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AIU_JumpkingCharacter::Look);
 
 	}
-
 }
 
 void AIU_JumpkingCharacter::Move(const FInputActionValue& Value)
