@@ -2,6 +2,10 @@
 
 
 #include "Pickups/JPickupBase.h"
+#include "Character/JCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Components/SphereComponent.h"
 
 // Sets default values
@@ -25,7 +29,7 @@ AJPickupBase::AJPickupBase()
 
 	// Default Values
 	PitchVal = 0.f;
-	YawVal = 1.f;
+	YawVal = 25.f;
 	RollVal = 0.f;
 }
 
@@ -49,9 +53,22 @@ void AJPickupBase::Tick(float DeltaTime)
 
 void AJPickupBase::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && (OtherActor != this) && OtherComp)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Overlap Begin"));
+	AJCharacter* PlayerChar = Cast<AJCharacter>(OtherActor);
+	if (PlayerChar && (OtherActor != this) && OtherComp) {
+		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Overlap Begin")); // debug
+		OnPickup.Broadcast(PlayerChar);
+		PickUpFX();
+		Destroy();
 	}
+}
+
+void AJPickupBase::PickUpFX()
+{
+	// Sound FX
+	float RandPitch = FMath::RandRange(.8f, 1.2f); // Random Pitch
+	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation(), 1.f, RandPitch); // !TODO Volume
+
+	// Visual FX
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PickupEffect, GetActorLocation());
 }
 

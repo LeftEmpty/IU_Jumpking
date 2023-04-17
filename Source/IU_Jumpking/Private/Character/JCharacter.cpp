@@ -32,9 +32,9 @@ AJCharacter::AJCharacter()
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->JumpZVelocity = JumpVelocity;
 	GetCharacterMovement()->AirControl = 0.f; // for the "jumpking" feel
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
@@ -48,14 +48,29 @@ AJCharacter::AJCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Default values
+	MaxJumpVelocity = 2000.f;
+	JumpVelocity = 0.f;
+	JumpKeyDownTime = 0.f;
+	bJumpKeyDown = false;
+
+	MaxLives = 3;
+	Lives = MaxLives;
+
+	Coins = 0;
+
+	bHasKey = false;
 }
 
 // Called when the game starts or when spawned
 void AJCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MoveSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	
-	//Add Input Mapping Context
+	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -70,6 +85,14 @@ void AJCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Add jump force if jump key is held
+	if (bJumpKeyDown) {
+		// !TODO this is hard coded to space bar -> fix to make it catch all input "jumpaction" key inputs
+		// FKey JumpKey = GetWorld()->GetFirstPlayerController()->PlayerInput->GetKeysForAction(FName("JumpAction")); doesnt work
+		JumpKeyDownTime = FMath::Clamp(GetWorld()->GetFirstPlayerController()->GetInputKeyTimeDown(FKey("SpaceBar")),.35f, 1.f);
+		FString tmp3 = FString::SanitizeFloat(JumpKeyDownTime);
+		GEngine->AddOnScreenDebugMessage(4, 10.f, FColor::Cyan, *tmp3, true);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -81,8 +104,8 @@ void AJCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 
 		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AJCharacter::JumpStart);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AJCharacter::JumpEnd);
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AJCharacter::Move);
@@ -91,19 +114,14 @@ void AJCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJCharacter::Look);
 
 	}
-
 }
 
 void AJCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	UE_LOG(LogTemp, Log, TEXT("Move"));
 
-	if (Controller != nullptr)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Move2"));
-
+	if (Controller != nullptr) {
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -122,16 +140,71 @@ void AJCharacter::Move(const FInputActionValue& Value)
 
 void AJCharacter::Look(const FInputActionValue& Value)
 {
-
-	UE_LOG(LogTemp, Log, TEXT("Look"));
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Look2"));
+	if (Controller != nullptr) {
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AJCharacter::JumpStart()
+{
+	// States
+	bJumpKeyDown = true;
+	SetPlayerState(EPlayerState::JumpHolding);
+
+	// Fix Movement
+	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+}
+
+void AJCharacter::JumpEnd()
+{
+	// States
+	bJumpKeyDown = false;
+	SetPlayerState(EPlayerState::MidAir);
+
+	// Reset Movement
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+
+	// Set Jump Height
+	JumpVelocity = MaxJumpVelocity * JumpKeyDownTime + BaseJumpVelocity;
+	GetCharacterMovement()->JumpZVelocity = JumpVelocity;
+
+	// Debug
+	FString tmp = FString::SanitizeFloat(JumpKeyDownTime);
+	GEngine->AddOnScreenDebugMessage(4, 10.f, FColor::Blue, *tmp, true);
+
+	FString tmp2 = FString::SanitizeFloat(JumpVelocity);
+	GEngine->AddOnScreenDebugMessage(5, 10.f, FColor::Purple, *tmp2, true);
+	
+	float JumpForward = 200 + JumpKeyDownTime * 500;
+	FVector LaunchVector = FVector(GetActorForwardVector().X* JumpForward, GetActorForwardVector().Y* JumpForward, JumpVelocity);
+	LaunchCharacter(LaunchVector, false, false);
+}
+
+void AJCharacter::SetPlayerState(EPlayerState NewState)
+{
+	PS = NewState;
+}
+
+void AJCharacter::AddCoins(int32 Amount)
+{
+	// !TODO Add Lives when reaching 99 coins and reset to 0
+	Coins = FMath::Clamp(Coins + Amount, 0, 99);
+	GEngine->AddOnScreenDebugMessage(300, 10.f, FColor::Yellow, FString::Printf(TEXT("Coins: %s"), *FString::FromInt(Coins)));
+}
+
+void AJCharacter::AddLives(int32 Amount)
+{
+	Lives = FMath::Clamp(Lives + Amount, 0, MaxLives);
+	GEngine->AddOnScreenDebugMessage(301, 10.f, FColor::Red, FString::Printf(TEXT("Lives: %s"), *FString::FromInt(Lives)));
+}
+
+void AJCharacter::SetHasKey(bool HasKey)
+{
+	bHasKey = HasKey;
+	GEngine->AddOnScreenDebugMessage(302, 10.f, FColor::Orange, FString::Printf(TEXT("Key: %s"), HasKey ? TEXT("true") : TEXT("false")));
 }
