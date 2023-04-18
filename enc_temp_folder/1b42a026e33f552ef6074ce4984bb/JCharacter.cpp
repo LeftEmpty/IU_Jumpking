@@ -161,9 +161,6 @@ void AJCharacter::Look(const FInputActionValue& Value)
 
 void AJCharacter::JumpStart()
 {
-	if (isFalling()) {
-		return;
-	}
 	// States
 	bJumpKeyDown = true;
 	SetPlayerState(EPlayerState::JumpHolding);
