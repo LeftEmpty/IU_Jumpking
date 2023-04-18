@@ -185,6 +185,30 @@ void AJCharacter::JumpEnd()
 	LaunchCharacter(LaunchVector, false, false);
 }
 
+void AJCharacter::OnTakeDamage()
+{
+	if (Lives > 1) {
+		AddLives(-1);
+		// Respawn
+
+	}
+	else {
+		// Game Over
+		Die();
+	}
+}
+
+void AJCharacter::Respawn()
+{
+	// !TODO respawn player at start / last checkpoint
+}
+
+void AJCharacter::Die()
+{
+	// !TODO change game state & cause gm to show game over screen
+	OnGameOver.Broadcast(this);
+}
+
 void AJCharacter::SetPlayerState(EPlayerState NewState)
 {
 	PS = NewState;
@@ -194,17 +218,23 @@ void AJCharacter::AddCoins(int32 Amount)
 {
 	// !TODO Add Lives when reaching 99 coins and reset to 0
 	Coins = FMath::Clamp(Coins + Amount, 0, 99);
+	OnRecoursesChanged.Broadcast(this, Coins, Lives, bHasKey);
 	GEngine->AddOnScreenDebugMessage(300, 10.f, FColor::Yellow, FString::Printf(TEXT("Coins: %s"), *FString::FromInt(Coins)));
 }
 
 void AJCharacter::AddLives(int32 Amount)
 {
 	Lives = FMath::Clamp(Lives + Amount, 0, MaxLives);
+	OnRecoursesChanged.Broadcast(this, Coins, Lives, bHasKey);
 	GEngine->AddOnScreenDebugMessage(301, 10.f, FColor::Red, FString::Printf(TEXT("Lives: %s"), *FString::FromInt(Lives)));
 }
 
 void AJCharacter::SetHasKey(bool HasKey)
 {
 	bHasKey = HasKey;
+	OnRecoursesChanged.Broadcast(this, Coins, Lives, bHasKey);
 	GEngine->AddOnScreenDebugMessage(302, 10.f, FColor::Orange, FString::Printf(TEXT("Key: %s"), HasKey ? TEXT("true") : TEXT("false")));
 }
+
+
+
