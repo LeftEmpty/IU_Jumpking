@@ -14,6 +14,4 @@ AIU_JumpkingGameMode::AIU_JumpkingGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 	*/
-
 }
-

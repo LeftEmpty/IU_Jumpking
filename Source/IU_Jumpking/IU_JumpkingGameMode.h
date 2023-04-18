@@ -6,10 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "IU_JumpkingGameMode.generated.h"
 
-
-class AJCharacter;
-
-
 UCLASS(minimalapi)
 class AIU_JumpkingGameMode : public AGameModeBase
 {
@@ -17,9 +13,6 @@ class AIU_JumpkingGameMode : public AGameModeBase
 
 public:
 	AIU_JumpkingGameMode();
-
-	
-
 };
 
 
