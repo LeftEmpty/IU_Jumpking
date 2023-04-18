@@ -8,6 +8,10 @@
 #include "JCharacter.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRecoursesChangedDelegate, AJCharacter*, Player, int32, Lives, int32, Coins, bool, HasKey);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameOverDelegate, AJCharacter*, Player);
+
+
 UENUM()
 enum EPlayerState{
 	Idle			UMETA(DisplayName = "Idle"),
@@ -81,6 +85,13 @@ public:
 
 	bool GetHasKey() { return bHasKey; }
 
+	// Use these delegates to update the UI
+	UPROPERTY(BlueprintAssignable, Category = "Sunny")
+	FOnRecoursesChangedDelegate OnRecoursesChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Sunny")
+	FOnGameOverDelegate OnGameOver;
+
 protected:
 	// Jumping
 	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
@@ -114,6 +125,12 @@ protected:
 
 	/** Called for jump input - released */
 	void JumpEnd();
+
+	void OnTakeDamage();
+
+	void Respawn();
+
+	void Die();
 
 private:
 	EPlayerState PS;
