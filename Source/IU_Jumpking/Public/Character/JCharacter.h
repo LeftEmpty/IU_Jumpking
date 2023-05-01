@@ -9,8 +9,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRecoursesChangedDelegate, AJCharacter*, Player, int32, Lives, int32, Coins, bool, HasKey);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameOverDelegate, AJCharacter*, Player);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeathDelegate, AJCharacter*, Player, bool, bGameOver);
 
 UENUM()
 enum EPlayerState{
@@ -19,6 +18,7 @@ enum EPlayerState{
 	MidAir			UMETA(DisplayName = "Mid Air"),
 	JumpHolding		UMETA(DisplayName = "JumpHolding"),
 	Won				UMETA(DisplayName = "Won"),
+	GameOver		UMETA(DisplayName = "Game Over")
 };
 
 
@@ -60,7 +60,8 @@ public:
 	FOnRecoursesChangedDelegate OnRecoursesChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "Sunny")
-	FOnGameOverDelegate OnGameOver;
+	FOnDeathDelegate OnDeath;
+
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -96,13 +97,19 @@ public:
 	bool GetHasKey() { return bHasKey; }
 	
 	UFUNCTION(BlueprintCallable, Category ="Sunny")
-	void OnTakeDamage();
+	void Die();
 
 	UFUNCTION(BlueprintCallable, Category ="Sunny")
-	void Die();
+	void GameOver();
 	
 	UFUNCTION(BlueprintCallable, Category ="Sunny")
-	void OnRespawn();
+	void Respawn();
+
+	// Checkpoints
+	void UpdateCheckpoint(FVector CheckpointSpawnLocation);
+
+	UFUNCTION(BlueprintCallable, Category = "Sunny")
+	FVector GetLastCheckpointLocation() { return LastCheckpointLoc; }
 
 protected:
 	// Jumping
@@ -119,6 +126,9 @@ protected:
 	bool bJumpKeyDown;
 
 	float MoveSpeed; // temporary stores move speed variable for stopping movement during jump
+
+	// Death
+	FTimerHandle FOnDeathTimer;
 
 	// FX
 	UPROPERTY(EditDefaultsOnly, Category="Sunny|FX")
@@ -157,4 +167,8 @@ private:
 	int32 MaxLives;
 
 	bool bHasKey;
+
+	FVector LastCheckpointLoc;
+
+
 };

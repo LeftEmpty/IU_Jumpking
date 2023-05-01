@@ -161,9 +161,10 @@ void AJCharacter::Look(const FInputActionValue& Value)
 
 void AJCharacter::JumpStart()
 {
-	if (isFalling()) {
+	if (GetCharacterMovement()->IsFalling()) {
 		return;
 	}
+
 	// States
 	bJumpKeyDown = true;
 	SetPlayerState(EPlayerState::JumpHolding);
@@ -174,6 +175,10 @@ void AJCharacter::JumpStart()
 
 void AJCharacter::JumpEnd()
 {
+	if (GetCharacterMovement()->IsFalling()) {
+		return;
+	}
+
 	// States
 	bJumpKeyDown = false;
 	SetPlayerState(EPlayerState::MidAir);
@@ -224,32 +229,54 @@ void AJCharacter::SetHasKey(bool HasKey)
 	GEngine->AddOnScreenDebugMessage(302, 10.f, FColor::Orange, FString::Printf(TEXT("Key: %s"), HasKey ? TEXT("true") : TEXT("false")));
 }
 
-void AJCharacter::OnTakeDamage()
+void AJCharacter::Die()
 {
+	// Hide Mesh
+	GetMesh()->SetVisibility(false);
+	GetCharacterMovement()->StopMovementImmediately();
+
 	// FX
 	DeathFX();
 
-	if (Lives > 1) {
-		AddLives(-1);
-	}
-	else {
-		// Game Over
-		Die();
-	}
-}
+	// !TODO add screen transition
 
-void AJCharacter::Die()
-{
-	// !TODO change game state & cause gm to show game over screen
 	
-	// Delegate
-	OnGameOver.Broadcast(this);
+	// Respawn
+	if (Lives > 1) {
+		OnDeath.Broadcast(this, false);
+		AddLives(-1);
+		GetWorld()->GetTimerManager().SetTimer(FOnDeathTimer, this, &AJCharacter::Respawn, .75f, false);
+	}
+	// Game over
+	else {
+		OnDeath.Broadcast(this, true);
+		GameOver();
+		GetWorld()->GetTimerManager().SetTimer(FOnDeathTimer, this, &AJCharacter::GameOver, .75f, false);
+	}
+	
 }
 
-void AJCharacter::OnRespawn()
+void AJCharacter::GameOver()
 {
+	UE_LOG(LogTemp, Log, TEXT("game over"));
+	// !TODO change game state & cause gm to show game over screen
+
+	// Clear Timer
+	GetWorld()->GetTimerManager().ClearTimer(FOnDeathTimer);
+}
+
+void AJCharacter::Respawn()
+{
+	UE_LOG(LogTemp, Log, TEXT("repsawn"));
+	
 	// Reset Mesh Visibility
 	GetMesh()->SetVisibility(true);
+
+	// Move to last Checkpoint
+	SetActorLocation(LastCheckpointLoc + FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), false);
+
+	// Clear Timer
+	GetWorld()->GetTimerManager().ClearTimer(FOnDeathTimer);
 }
 
 void AJCharacter::DeathFX()
@@ -263,4 +290,10 @@ void AJCharacter::DeathFX()
 
 	// Visual FX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, DeathEffect, GetActorLocation());
+}
+
+void AJCharacter::UpdateCheckpoint(FVector CheckpointSpawnLocation)
+{
+	LastCheckpointLoc = CheckpointSpawnLocation;
+	UE_LOG(LogTemp, Log, TEXT("Checkpoint set"));
 }
