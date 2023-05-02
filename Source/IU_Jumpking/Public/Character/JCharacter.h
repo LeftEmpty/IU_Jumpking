@@ -10,6 +10,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRecoursesChangedDelegate, AJCharacter*, Player, int32, Lives, int32, Coins, bool, HasKey);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeathDelegate, AJCharacter*, Player, bool, bGameOver);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnVictoryDelegate, AJCharacter*, Player);
+
 
 UENUM()
 enum EPlayerState{
@@ -62,6 +64,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Sunny")
 	FOnDeathDelegate OnDeath;
 
+	UPROPERTY(BlueprintAssignable, Category = "Sunny")
+	FOnVictoryDelegate OnVictory;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -78,6 +82,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Sunny|Jump")
 	EPlayerState GetPlayerState() { return PS; }
 
+	// Resources
 	UFUNCTION(BlueprintCallable, Category = "Sunny|Recourses")
 	void AddCoins(int32 Amount);
 
@@ -96,6 +101,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Sunny|Recourses")
 	bool GetHasKey() { return bHasKey; }
 	
+	// Death
 	UFUNCTION(BlueprintCallable, Category ="Sunny")
 	void Die();
 
@@ -110,6 +116,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Sunny")
 	FVector GetLastCheckpointLocation() { return LastCheckpointLoc; }
+	
+	// Goal / Victory
+	UFUNCTION()
+	void Win();
 
 protected:
 	// Jumping
@@ -137,7 +147,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Sunny|FX")
 	class UNiagaraSystem* DeathEffect;
 
-	// Called when the game starts or when spawned      
+	// Victory
+	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
+	class UAnimMontage* VictoryAnimation;
+
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	// Called to bind functionality to input

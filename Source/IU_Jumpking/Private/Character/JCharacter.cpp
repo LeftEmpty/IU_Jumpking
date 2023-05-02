@@ -234,41 +234,44 @@ void AJCharacter::Die()
 	// Hide Mesh
 	GetMesh()->SetVisibility(false);
 	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+	GetCharacterMovement()->GravityScale = 0.0f;
 
 	// FX
 	DeathFX();
-
-	// !TODO add screen transition
-
-	
+		
 	// Respawn
 	if (Lives > 1) {
 		OnDeath.Broadcast(this, false);
 		AddLives(-1);
-		GetWorld()->GetTimerManager().SetTimer(FOnDeathTimer, this, &AJCharacter::Respawn, .75f, false);
+		GetWorld()->GetTimerManager().SetTimer(FOnDeathTimer, this, &AJCharacter::Respawn, 1.25f, false);
 	}
 	// Game over
 	else {
 		OnDeath.Broadcast(this, true);
 		GameOver();
-		GetWorld()->GetTimerManager().SetTimer(FOnDeathTimer, this, &AJCharacter::GameOver, .75f, false);
+		GetWorld()->GetTimerManager().SetTimer(FOnDeathTimer, this, &AJCharacter::GameOver, 1.25f, false);
 	}
-	
 }
 
 void AJCharacter::GameOver()
 {
 	UE_LOG(LogTemp, Log, TEXT("game over"));
-	// !TODO change game state & cause gm to show game over screen
 
 	// Clear Timer
 	GetWorld()->GetTimerManager().ClearTimer(FOnDeathTimer);
+
+	this->SetLifeSpan(2.5f);
 }
 
 void AJCharacter::Respawn()
 {
 	UE_LOG(LogTemp, Log, TEXT("repsawn"));
 	
+	// Reset gravity (defauult value 2.0 as of now)
+	GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	GetCharacterMovement()->GravityScale = 2.0f;
+
 	// Reset Mesh Visibility
 	GetMesh()->SetVisibility(true);
 
@@ -296,4 +299,19 @@ void AJCharacter::UpdateCheckpoint(FVector CheckpointSpawnLocation)
 {
 	LastCheckpointLoc = CheckpointSpawnLocation;
 	UE_LOG(LogTemp, Log, TEXT("Checkpoint set"));
+}
+
+void AJCharacter::Win() {
+	// Player State
+	SetPlayerState(EPlayerState::Won);
+	
+	// Delegate to update UI
+	OnVictory.Broadcast(this);
+
+	// Disable Movement
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->DisableMovement();
+
+	// FX
+	PlayAnimMontage(VictoryAnimation, 1.0f, "start_1");
 }
