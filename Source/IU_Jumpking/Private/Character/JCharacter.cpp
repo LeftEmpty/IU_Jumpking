@@ -41,7 +41,7 @@ AJCharacter::AJCharacter()
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = JumpVelocity;
+	GetCharacterMovement()->JumpZVelocity = JumpHeightVelocity;
 	GetCharacterMovement()->AirControl = 0.f; // for the "jumpking" feel
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
@@ -59,8 +59,8 @@ AJCharacter::AJCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Default values
-	MaxJumpVelocity = 2000.f;
-	JumpVelocity = 0.f;
+	MaxJumpHeightVelocity = 2000.f;
+	JumpHeightVelocity = 0.f;
 	JumpKeyDownTime = 0.f;
 	bJumpKeyDown = false;
 
@@ -187,18 +187,18 @@ void AJCharacter::JumpEnd()
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
 	// Set Jump Height
-	JumpVelocity = MaxJumpVelocity * JumpKeyDownTime + BaseJumpVelocity;
-	GetCharacterMovement()->JumpZVelocity = JumpVelocity;
+	JumpHeightVelocity = MaxJumpHeightVelocity * JumpKeyDownTime + BaseJumpHeightVelocity;
+	// GetCharacterMovement()->JumpZVelocity = JumpHeightVelocity;
 
 	// Debug
 	FString tmp = FString::SanitizeFloat(JumpKeyDownTime);
 	GEngine->AddOnScreenDebugMessage(4, 10.f, FColor::Blue, *tmp, true);
 
-	FString tmp2 = FString::SanitizeFloat(JumpVelocity);
+	FString tmp2 = FString::SanitizeFloat(JumpHeightVelocity);
 	GEngine->AddOnScreenDebugMessage(5, 10.f, FColor::Purple, *tmp2, true);
 	
-	float JumpForward = 200 + JumpKeyDownTime * 500;
-	FVector LaunchVector = FVector(GetActorForwardVector().X* JumpForward, GetActorForwardVector().Y* JumpForward, JumpVelocity);
+	float JumpForward = BaseJumpForwardVelocity + JumpKeyDownTime * JumpForwardVelocity;
+	FVector LaunchVector = FVector(GetActorForwardVector().X * JumpForward, GetActorForwardVector().Y * JumpForward, JumpHeightVelocity);
 	LaunchCharacter(LaunchVector, false, false);
 }
 
@@ -260,7 +260,7 @@ void AJCharacter::GameOver()
 
 	// Clear Timer
 	GetWorld()->GetTimerManager().ClearTimer(FOnDeathTimer);
-
+		
 	this->SetLifeSpan(2.5f);
 }
 

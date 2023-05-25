@@ -124,13 +124,20 @@ public:
 protected:
 	// Jumping
 	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
-	float MaxJumpVelocity; // max height the player should be able to jump
+	float MaxJumpHeightVelocity; // max height the player should be able to jump
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
-	float BaseJumpVelocity = 200.f; // multiplier to adjust for increased gravity
+	float BaseJumpHeightVelocity = 200.f; // multiplier to adjust for increased gravity
 
-	float JumpVelocity; // velocity set in code depending on how long key is held
+	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
+	float JumpHeightVelocity; // velocity set in code depending on how long key is held
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
+	float BaseJumpForwardVelocity = 200.f; // multiplier to adjust for increased gravity
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
+	float JumpForwardVelocity = 500; // velocity set in code depending on how long key is held
+
 	float JumpKeyDownTime;
 
 	bool bJumpKeyDown;
