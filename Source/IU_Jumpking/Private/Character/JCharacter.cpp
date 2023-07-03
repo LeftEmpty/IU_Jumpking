@@ -70,6 +70,7 @@ AJCharacter::AJCharacter()
 	Coins = 0;
 
 	bHasKey = false;
+	bCheckpointReached = false;
 }
 
 // Called when the game starts or when spawned
@@ -87,6 +88,9 @@ void AJCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	// Set Player Start Location
+	PlayerStartVec = GetActorLocation();
 }
 
 // Called every frame
@@ -275,8 +279,13 @@ void AJCharacter::Respawn()
 	// Reset Mesh Visibility
 	GetMesh()->SetVisibility(true);
 
-	// Move to last Checkpoint
-	SetActorLocation(LastCheckpointLoc + FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), false);
+	// Move to last Checkpoint or Start
+	if (bCheckpointReached) {
+		SetActorLocation(LastCheckpointLoc + FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), false);
+	}
+	else {
+		SetActorLocation(PlayerStartVec + FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), false);
+	}
 
 	// Clear Timer
 	GetWorld()->GetTimerManager().ClearTimer(FOnDeathTimer);
@@ -297,6 +306,7 @@ void AJCharacter::DeathFX()
 
 void AJCharacter::UpdateCheckpoint(FVector CheckpointSpawnLocation)
 {
+	bCheckpointReached = true;
 	LastCheckpointLoc = CheckpointSpawnLocation;
 	UE_LOG(LogTemp, Log, TEXT("Checkpoint set"));
 }

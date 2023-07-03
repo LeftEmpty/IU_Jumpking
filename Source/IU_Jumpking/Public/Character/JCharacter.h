@@ -147,6 +147,9 @@ protected:
 	// Death
 	FTimerHandle FOnDeathTimer;
 
+	UPROPERTY(EditDefaultsOnly, Category="Sunny")
+	FVector PlayerStartVec;
+
 	// FX
 	UPROPERTY(EditDefaultsOnly, Category="Sunny|FX")
 	class USoundBase* DeathSound;
@@ -189,7 +192,7 @@ private:
 
 	bool bHasKey;
 
+	bool bCheckpointReached;
+
 	FVector LastCheckpointLoc;
-
-
 };
