@@ -213,7 +213,7 @@ void AJCharacter::SetPlayerState(EPlayerState NewState)
 
 void AJCharacter::AddCoins(int32 Amount)
 {
-	// !TODO Add Lives when reaching 99 coins and reset to 0
+	// !TODO Add Lives when reaching 99 coins and reset to 0 ?
 	Coins = FMath::Clamp(Coins + Amount, 0, 99);
 	OnRecoursesChanged.Broadcast(this, Coins, Lives, bHasKey);
 	GEngine->AddOnScreenDebugMessage(300, 10.f, FColor::Yellow, FString::Printf(TEXT("Coins: %s"), *FString::FromInt(Coins)));
