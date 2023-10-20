@@ -71,6 +71,8 @@ AJCharacter::AJCharacter()
 
 	bHasKey = false;
 	bCheckpointReached = false;
+
+	bDead = false;
 }
 
 // Called when the game starts or when spawned
@@ -235,6 +237,11 @@ void AJCharacter::SetHasKey(bool HasKey)
 
 void AJCharacter::Die()
 {
+	if (bDead) {
+		return;
+	}
+	bDead = true;
+	
 	// Hide Mesh
 	GetMesh()->SetVisibility(false);
 	GetCharacterMovement()->StopMovementImmediately();
@@ -272,6 +279,8 @@ void AJCharacter::Respawn()
 {
 	UE_LOG(LogTemp, Log, TEXT("repsawn"));
 	
+	bDead = false;
+
 	// Reset gravity (defauult value 2.0 as of now)
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->GravityScale = 2.0f;

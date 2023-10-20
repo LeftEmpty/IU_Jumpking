@@ -194,5 +194,7 @@ private:
 
 	bool bCheckpointReached;
 
+	bool bDead;
+
 	FVector LastCheckpointLoc;
 };
