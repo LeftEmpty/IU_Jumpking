@@ -8,7 +8,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 
+#include "Interfaces/JInteractInterface.h"
+
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
@@ -16,6 +19,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/PlayerController.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -58,6 +62,15 @@ AJCharacter::AJCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// Interact Collision
+	CapsuleColliderComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("InteractColliderComp"));
+	CapsuleColliderComp->SetupAttachment(RootComponent);
+	CapsuleColliderComp->SetCapsuleHalfHeight(420.f);
+	CapsuleColliderComp->SetCapsuleRadius(340.f);
+	CapsuleColliderComp->SetRelativeLocation(FVector(80.f,0,20.f));
+	CapsuleColliderComp->SetRelativeRotation(FRotator(-90,0,0));
+
+
 	// Default values
 	MaxJumpHeightVelocity = 2000.f;
 	JumpHeightVelocity = 0.f;
@@ -79,6 +92,9 @@ AJCharacter::AJCharacter()
 void AJCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CapsuleColliderComp->OnComponentBeginOverlap.AddDynamic(this, &AJCharacter::OnInteractableNoticed);
+	CapsuleColliderComp->OnComponentEndOverlap.AddDynamic(this, &AJCharacter::OnInteractableForgotten);
 
 	MoveSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	
@@ -128,6 +144,8 @@ void AJCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJCharacter::Look);
 
+		//Interacting
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AJCharacter::Interact);
 	}
 }
 
@@ -334,3 +352,49 @@ void AJCharacter::Win() {
 	// FX
 	PlayAnimMontage(VictoryAnimation, 1.0f, "start_1");
 }
+
+void AJCharacter::ChangeToLevel(FString Level)
+{
+	if (Levels.Contains(Level)) {
+		UGameplayStatics::OpenLevel(GetWorld(), FName(Level));
+	}
+}
+
+void AJCharacter::OnInteractableNoticed(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	IJInteractInterface* Interactable = Cast<IJInteractInterface>(OtherActor);
+	if (OtherActor && Interactable) {
+		InteractablesInRange.Add(Interactable);
+		Interactable->SetNoticedPure(true);
+		Interactable->Execute_SetNoticed(OtherActor, true);
+	}
+}
+
+void AJCharacter::OnInteractableForgotten(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	IJInteractInterface* Interactable = Cast<IJInteractInterface>(OtherActor);
+	if (OtherActor && Interactable) {
+		if (InteractablesInRange.Contains(Interactable)) {
+			InteractablesInRange.Remove(Interactable);
+		}
+		Interactable->SetNoticedPure(false);
+		Interactable->Execute_SetNoticed(OtherActor, false);
+	}
+}
+
+void AJCharacter::Interact()
+{
+	if (InteractablesInRange.Num() > 0 && InteractablesInRange[0]) {
+		// Call to interaface
+		InteractablesInRange[0]->InteractPure();
+		// Camera
+		InteractablesInRange[0]->StartPlayerCameraLookAtPure();
+		// Rotate player towards interactable
+		AActor* I = Cast<AActor>(InteractablesInRange[0]);
+		if (I) {
+			SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), I->GetActorLocation()));
+			// !TODO stop input (ALSO RESET FUNCTION)
+		}
+	}
+}
+

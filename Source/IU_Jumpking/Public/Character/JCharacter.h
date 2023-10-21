@@ -8,6 +8,9 @@
 #include "JCharacter.generated.h"
 
 
+class IJInteractInterface;
+
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRecoursesChangedDelegate, AJCharacter*, Player, int32, Lives, int32, Coins, bool, HasKey);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeathDelegate, AJCharacter*, Player, bool, bGameOver);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnVictoryDelegate, AJCharacter*, Player);
@@ -37,6 +40,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
+	/** Capsule component that looks for interactables */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "NPC", meta = (AllowPrivateAccess = "true"))
+	UCapsuleComponent* CapsuleColliderComp;
+
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
@@ -44,6 +51,10 @@ public:
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* DefaultMappingContext;
+
+	/** Interact Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* InteractAction;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -121,7 +132,26 @@ public:
 	UFUNCTION()
 	void Win();
 
+	// Level Switching
+	void ChangeToLevel(FString Level);
+
+	TArray<FString> Levels;
+
 protected:
+	// Interaction
+	UFUNCTION()
+	void OnInteractableNoticed(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnInteractableForgotten(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	TArray<IJInteractInterface*> InteractablesInRange;
+	
+	UFUNCTION()
+	void Interact();
+
 	// Jumping
 	UPROPERTY(EditDefaultsOnly, Category = "Sunny|Jump")
 	float MaxJumpHeightVelocity; // max height the player should be able to jump
@@ -198,3 +228,4 @@ private:
 
 	FVector LastCheckpointLoc;
 };
+ 
