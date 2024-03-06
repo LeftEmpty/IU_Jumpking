@@ -7,11 +7,8 @@
 #include "JProjectile.generated.h"
 
 
-class UCapsuleComponent;
+class UJDeathColliderComponent;
 class UArrowComponent;
-
-
-
 
 
 UCLASS()
@@ -27,10 +24,7 @@ public:
 	UArrowComponent* ArrowComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile", meta = (AllowPrivateAccess = "true"))
-	UCapsuleComponent* ColliderComp;
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UJDeathColliderComponent* ColliderComp;
 
 protected:
 	// Called when the game starts or when spawned

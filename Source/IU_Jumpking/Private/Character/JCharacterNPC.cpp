@@ -19,7 +19,7 @@ AJCharacterNPC::AJCharacterNPC()
 
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidgetComp"));
 	InteractWidget->SetupAttachment(RootComponent);
-	
+
 	bPlayerInRange = false;
 }
 

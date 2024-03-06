@@ -55,8 +55,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "NPC")
 	AActor* LookAtTarget;
 
-
-
 private:
 	bool bPlayerInRange;
 

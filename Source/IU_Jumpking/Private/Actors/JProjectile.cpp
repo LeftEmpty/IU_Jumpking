@@ -4,7 +4,7 @@
 #include "Actors/JProjectile.h"
 #include "Character/JCharacter.h"
 
-#include "Components/CapsuleComponent.h"
+#include "Components/JDeathColliderComponent.h"
 #include "Components/ArrowComponent.h"
 
 
@@ -17,7 +17,7 @@ AJProjectile::AJProjectile()
 	ArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow Comp"));
 	RootComponent = ArrowComp;
 
-	ColliderComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ColliderComp"));
+	ColliderComp = CreateDefaultSubobject<UJDeathColliderComponent>(TEXT("ColliderComp"));
 	ColliderComp->SetupAttachment(RootComponent);
 
 	LifeSpan = 5.f;
@@ -28,7 +28,7 @@ void AJProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ColliderComp->OnComponentBeginOverlap.AddDynamic(this, &AJProjectile::OnColliderBeginOverlap);
+	//ColliderComp->OnComponentBeginOverlap.AddDynamic(this, &AJProjectile::OnColliderBeginOverlap);
 
 	SetLifeSpan(LifeSpan);
 }
@@ -42,10 +42,4 @@ void AJProjectile::OnColliderBeginOverlap(UPrimitiveComponent* OverlappedComp, A
 	// !TODO play fx
 }
 
-// Called every frame
-void AJProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 
