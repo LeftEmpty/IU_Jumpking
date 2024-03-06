@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+<<<<<<< Updated upstream
 #include "InputActionValue.h"
 #include "JCharacter.generated.h"
 
@@ -27,6 +28,10 @@ enum EPlayerState{
 };
 
 
+=======
+#include "JCharacter.generated.h"
+
+>>>>>>> Stashed changes
 UCLASS()
 class IU_JUMPKING_API AJCharacter : public ACharacter
 {
@@ -36,6 +41,7 @@ public:
 	// Sets default values for this character's properties
 	AJCharacter();
 
+<<<<<<< Updated upstream
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -229,3 +235,17 @@ private:
 	FVector LastCheckpointLoc;
 };
  
+=======
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+};
+>>>>>>> Stashed changes

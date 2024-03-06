@@ -3,6 +3,7 @@
 
 #include "Character/JCharacter.h"
 
+<<<<<<< Updated upstream
 #include "Camera/CameraComponent.h"
 
 #include "Components/CapsuleComponent.h"
@@ -25,12 +26,15 @@
 #include "EnhancedInputSubsystems.h"
 
 
+=======
+>>>>>>> Stashed changes
 // Sets default values
 AJCharacter::AJCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+<<<<<<< Updated upstream
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(142.f, 80.0f);
 
@@ -86,12 +90,15 @@ AJCharacter::AJCharacter()
 	bCheckpointReached = false;
 
 	bDead = false;
+=======
+>>>>>>> Stashed changes
 }
 
 // Called when the game starts or when spawned
 void AJCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+<<<<<<< Updated upstream
 
 	CapsuleColliderComp->OnComponentBeginOverlap.AddDynamic(this, &AJCharacter::OnInteractableNoticed);
 	CapsuleColliderComp->OnComponentEndOverlap.AddDynamic(this, &AJCharacter::OnInteractableForgotten);
@@ -109,6 +116,9 @@ void AJCharacter::BeginPlay()
 
 	// Set Player Start Location
 	PlayerStartVec = GetActorLocation();
+=======
+	
+>>>>>>> Stashed changes
 }
 
 // Called every frame
@@ -116,6 +126,7 @@ void AJCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+<<<<<<< Updated upstream
 	// Add jump force if jump key is held
 	if (bJumpKeyDown) {
 		// !TODO this is hard coded to space bar -> fix to make it catch all input "jumpaction" key inputs
@@ -396,5 +407,14 @@ void AJCharacter::Interact()
 			// !TODO stop input (ALSO RESET FUNCTION)
 		}
 	}
+=======
+}
+
+// Called to bind functionality to input
+void AJCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+>>>>>>> Stashed changes
 }
 
