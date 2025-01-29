@@ -3,11 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "JProjectile.generated.h"
 
 
-class UJDeathColliderComponent;
+class UJDeathCollisionComponent;
 class UArrowComponent;
 
 
@@ -24,7 +23,7 @@ public:
 	UArrowComponent* ArrowComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile", meta = (AllowPrivateAccess = "true"))
-	UJDeathColliderComponent* ColliderComp;
+	UJDeathCollisionComponent* CollisionComp;
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,7 +32,5 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	float LifeSpan;
 
-private:
-	UFUNCTION()
-	void OnColliderBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 };

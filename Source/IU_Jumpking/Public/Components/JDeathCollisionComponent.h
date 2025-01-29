@@ -4,23 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "Components/CapsuleComponent.h"
-#include "JDeathColliderComponent.generated.h"
-
-// class UCapsuleComponent;
+#include "JDeathCollisionComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class IU_JUMPKING_API UJDeathColliderComponent : public UCapsuleComponent
+class IU_JUMPKING_API UJDeathCollisionComponent : public UCapsuleComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UJDeathColliderComponent();
+	UJDeathCollisionComponent();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-		
+private:
+	UFUNCTION()
+	void OnColliderBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 };

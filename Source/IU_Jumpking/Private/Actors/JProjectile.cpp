@@ -3,8 +3,7 @@
 
 #include "Actors/JProjectile.h"
 #include "Character/JCharacter.h"
-
-#include "Components/JDeathColliderComponent.h"
+#include "Components/JDeathCollisionComponent.h"
 #include "Components/ArrowComponent.h"
 
 
@@ -17,8 +16,8 @@ AJProjectile::AJProjectile()
 	ArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow Comp"));
 	RootComponent = ArrowComp;
 
-	ColliderComp = CreateDefaultSubobject<UJDeathColliderComponent>(TEXT("ColliderComp"));
-	ColliderComp->SetupAttachment(RootComponent);
+	CollisionComp = CreateDefaultSubobject<UJDeathCollisionComponent>(TEXT("Death Collision Comp"));
+	CollisionComp->SetupAttachment(RootComponent);
 
 	LifeSpan = 5.f;
 }
@@ -27,19 +26,7 @@ AJProjectile::AJProjectile()
 void AJProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	//ColliderComp->OnComponentBeginOverlap.AddDynamic(this, &AJProjectile::OnColliderBeginOverlap);
 
 	SetLifeSpan(LifeSpan);
 }
-
-void AJProjectile::OnColliderBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	AJCharacter* Player = Cast<AJCharacter>(OtherActor);
-	if (Player) {
-		Player->Die();
-	}
-	// !TODO play fx
-}
-
 
