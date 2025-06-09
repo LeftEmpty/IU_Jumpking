@@ -15,7 +15,7 @@ The project implements basic Jump & Run mechanics inspired by the popuplar game 
 
 Created by two developers, intended as an exercise and portfolio project. The main objective was to use industry-standard, best practices to create a minimum viable product (MVP) with a realistic scope & timeline.
 
-![Small Trailer gif showcasing the main gameplay mechanics.](Docs\img\sunflower_mvp_gameplay.gif)
+![Small Trailer gif showcasing the main gameplay mechanics.](Docs/img/sunflower_mvp_gameplay.gif)
 
 ## Tools
 
@@ -42,7 +42,7 @@ Considering the relatively small of the project, the tools used are also kept si
 - Similar to it's 2D inspiration, the Jump works by standing still and loading up the jump distance.
 - Jump height, distance and direction are calculated depending on jump button pressed duration and player rotation. 
 
-  ![Image depicting the jump animation.](Docs\img\PresentationScreenshot_5.png)
+  ![Image depicting the jump animation.](Docs/img/PresentationScreenshot_5.png)
 
 ---
 
@@ -57,7 +57,7 @@ Considering the relatively small of the project, the tools used are also kept si
 - Pickups are a simple base class which can be derived from easily. 
 - As of now there are 3 different pickup types: Coins, Health, Keys.
 
-  ![Image depicting a Coin pickups.](Docs\img\PresentationScreenshot_4.png)
+  ![Image depicting a Coin pickups.](Docs/img/PresentationScreenshot_4.png)
 
 ---
 
@@ -73,7 +73,7 @@ Considering the relatively small of the project, the tools used are also kept si
 - Unless the player runs out of `Lives` they will respawn there.
 - Checkpoints will play an animation & spawn VFX on activation.
 
-  ![Image depicting a level checkpoint.](Docs\img\PresentationScreenshot_3.png)
+  ![Image depicting a level checkpoint.](Docs/img/PresentationScreenshot_3.png)
 
 ---
 
@@ -93,7 +93,7 @@ Considering the relatively small of the project, the tools used are also kept si
   - They may also be recovered by collecting a Health `Pickup`.
 
 
-  ![](Docs\img\PresentationScreenshot_1.png)
+  ![](Docs/img/PresentationScreenshot_1.png)
 
 ---
 
@@ -108,7 +108,7 @@ Considering the relatively small of the project, the tools used are also kept si
 - Then realized using 3 Assets packs for the sky/water & environment.
 - The main character and all obstacles, such as spikes, hammers, fireballs, etc. we're self-created.
   - Most of these are not in the vertical slice level yet as they were created at a later point.
-  ![](Docs\img\PresentationScreenshot_6.png)
+  ![](Docs/img/PresentationScreenshot_6.png)
 
 ---
 
@@ -122,7 +122,7 @@ Considering the relatively small of the project, the tools used are also kept si
 - Neither developer is an artist, thus the design & animations of the character were kept simple enough to be realizable for a programmer.
 - Should still be slightly better than 'programmer art'! *(hopefully)*
   
-  ![](Docs\img\PresentationScreenshot_7.png)
+  ![](Docs/img/PresentationScreenshot_7.png)
 
 ---
 
