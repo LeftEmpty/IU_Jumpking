@@ -6,7 +6,7 @@
 - [Summary](#summary)
 - [Tools](#tools)
 - [Features](#features)
-- [Project Structure](#project-structure)
+- [Future Outlook](#future-outlook)
 
 ## Summary
 
@@ -128,4 +128,15 @@ Considering the relatively small of the project, the tools used are also kept si
 
 </details>
 
+## Future Outlook
 
+> What's to come for this project.
+
+As this project is a simple exercise / portfolio piece there are currently no plans for further development.
+
+If we find the time we would like to implement:
+- To round this project out, a proper UI, (Main Menu / Level Selection) would be great.
+- More Obstacles / NPC's / Levels.
+- More playable Characters with slightly different mechanics.
+- Level Timer and completion mark.
+- Character Upgrades & Shop (Usage for Coin pickups).
