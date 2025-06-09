@@ -8,8 +8,9 @@ public class IU_JumpkingEditorTarget : TargetRules
 	public IU_JumpkingEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
-		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3;
-		ExtraModuleNames.Add("IU_Jumpking");
+		DefaultBuildSettings = BuildSettingsVersion.V5;
+        IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+        CppStandard = CppStandardVersion.Cpp20;
+        ExtraModuleNames.Add("IU_Jumpking");
 	}
 }
